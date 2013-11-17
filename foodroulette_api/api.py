@@ -107,6 +107,10 @@ class RouletteResource(BaseResource):
             url(r"^(?P<resource_name>%s)/clean%s$" % 
             (self._meta.resource_name, trailing_slash()), 
             self.wrap_view('roulette_clean'), name="api_roulette_clean"),
+
+            url(r"^(?P<resource_name>%s)/exec%s$" % 
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('roulette_exec'), name="api_roulette_exec"),
            ]
 
 
@@ -117,14 +121,20 @@ class RouletteResource(BaseResource):
     token_md5 = request.GET['token_md5']
     db_user = User.objects.get(token_md5=token_md5)
 
-    user_ids = map(lambda x: x.yammer_id, db_user.roulette.user_set.exclude(id=db_user.id))
+    user_ids = []
+
+    if (db_user.roulette):
+      user_ids = map(lambda x: x.yammer_id, db_user.roulette.user_set.exclude(id=db_user.id))
 
     return self.create_response(request, {"is_ready": is_ready,
                                           "user_ids": user_ids})
 
 
+  def roulette_exec(self, request, **kwargs):
+    exec_roulette()
+    return self.create_response(request, {'result': 'Roulettes executed.'})
 
 
   def roulette_clean(self, request, **kwargs):
     clean_roulette()
-    return self.create_response(request, {'result': 'Roulette has been cleant'})
+    return self.create_response(request, {'result': 'All roulettes have been cleant'})

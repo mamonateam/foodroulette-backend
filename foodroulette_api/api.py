@@ -5,7 +5,7 @@ from tastypie.utils import trailing_slash
 from tastypie.http import *
 import json
 from django.http import HttpResponse
-
+from foodroulette_api.roulette_logic import *
 
 """
 FoodRoulette API
@@ -94,5 +94,26 @@ class UserResource(BaseResource):
 #************************************************************************
 # Roulette Resource
 #************************************************************************
+class RouletteResource(BaseResource):
+  class Meta(BaseResource.Meta):
+    resource_name = 'roulette'
 
-# TODO
+
+  def prepend_urls(self):
+    return [ url(r"^(?P<resource_name>%s)%s$" % 
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('roulette_info'), name="api_roulette_info"),
+
+            url(r"^(?P<resource_name>%s)/clean%s$" % 
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('roulette_clean'), name="api_roulette_clean"),
+           ]
+
+
+  def roulette_info(self, request, **kwargs):
+    return self.create_response(request, {'options': '[/, /exec, /clean]'})
+
+
+  def roulette_clean(self, request, **kwargs):
+    clean_roulette()
+    return self.create_response(request, {'result': 'Roulette has been cleant'})

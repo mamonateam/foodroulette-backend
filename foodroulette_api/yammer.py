@@ -24,6 +24,10 @@ class Yammer(object):
     self.connection.users.update(user_id, interests=str_interests)
 
 
+  def send_message(self, user_id, body):
+    self.connection.messages.create(body=body, direct_to_id=user_id)
+
+
   def __serializate_user(self, user):
     if user['interests']:
       user['interests'] = map(lambda x: x.strip(), user['interests'].split(','))

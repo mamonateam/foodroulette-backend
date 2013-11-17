@@ -138,3 +138,32 @@ class RouletteResource(BaseResource):
   def roulette_clean(self, request, **kwargs):
     clean_roulette()
     return self.create_response(request, {'result': 'All roulettes have been cleant'})
+
+
+
+#************************************************************************
+# Message Resource
+#************************************************************************
+class MessageResource(BaseResource):
+  class Meta(BaseResource.Meta):
+    resource_name = 'message'
+
+
+  def prepend_urls(self):
+    return [url(r"^(?P<resource_name>%s)%s$" % 
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('send_message'), name="api_send_message"),
+           ]
+
+
+  def send_message(self, request, **kwargs):
+    self.is_authenticated(request)
+    token_md5 = request.GET['token_md5']
+    data = json.loads(request.body)
+    id_to = int(data['user_id'])
+    body = data['body']
+    db_user = User.objects.get(token_md5=token_md5)
+    yammer = Yammer(db_user.token)
+
+    yammer.send_message(id_to, body)
+    return self.create_response(request, {'result': 'Message sent ok.'})

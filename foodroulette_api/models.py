@@ -45,11 +45,12 @@ def create_user(token):
   yammer = Yammer(token)
   user_dict = yammer.get_my_user()
 
-  u = User(yammer_id=user_dict['id'],
-           token=token,
-           token_md5=md5_hash(token))
-  u.save()
-
-
-
-
+  u = User.objects.filter(token=token)
+  if u:
+    u = u[0]
+  else:
+    u = User(yammer_id=user_dict['id'],
+             token=token,
+             token_md5=md5_hash(token))
+    u.save()
+  return u

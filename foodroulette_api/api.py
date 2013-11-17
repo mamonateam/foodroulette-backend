@@ -6,6 +6,8 @@ from tastypie.http import *
 import json
 from django.http import HttpResponse
 from foodroulette_api.roulette_logic import *
+from foodroulette_api.bing import *
+
 
 """
 FoodRoulette API
@@ -167,3 +169,48 @@ class MessageResource(BaseResource):
 
     yammer.send_message(id_to, body)
     return self.create_response(request, {'result': 'Message sent ok.'})
+
+
+
+#************************************************************************
+# News Resource
+#************************************************************************
+class NewsResource(BaseResource):
+  class Meta(BaseResource.Meta):
+    resource_name = 'news'
+
+
+  def prepend_urls(self):
+    return [url(r"^(?P<resource_name>%s)/(?P<user_id>\d*)%s$" % 
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('get_news'), name="api_get_news"),
+           ]
+
+  def get_news(self, request, user_id, **kwargs):
+    self.is_authenticated(request)
+    token_md5 = request.GET['token_md5']
+    user_id = int(user_id)
+
+    db_user = User.objects.get(token_md5=token_md5)
+    yammer = Yammer(db_user.token)
+    yammer_user = yammer.get_user(user_id)
+
+    i = 0
+    news = []
+
+    while i < 3 and i < len(yammer_user['interests']):
+      term = yammer_user['interests'][i]
+      new = {'title': '', 'url': ''}
+
+      try:
+        bs = Bing(term)
+        title, url = bs.do_search()
+        new['title'] = title
+        new['url'] = url
+      except:
+        pass
+
+      news.append(new)
+      i += 1
+
+    return self.create_response(request, news)

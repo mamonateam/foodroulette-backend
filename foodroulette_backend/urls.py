@@ -10,6 +10,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(UserResource())
 v1_api.register(RouletteResource())
 v1_api.register(MessageResource())
+v1_api.register(NewsResource())
 
 
 urlpatterns = patterns('',

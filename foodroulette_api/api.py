@@ -28,6 +28,10 @@ class UserResource(BaseResource):
             url(r"^(?P<resource_name>%s)%s$" % 
             (self._meta.resource_name, trailing_slash()), 
             self.wrap_view('user_info'), name="api_user_info"),
+
+            url(r"^(?P<resource_name>%s)/(?P<user_id>\d*)%s$" %
+            (self._meta.resource_name, trailing_slash()), 
+            self.wrap_view('get_user'), name="api_get_user"),
            ]
 
 
@@ -48,10 +52,10 @@ class UserResource(BaseResource):
 
   def return_my_user(self, request):
     token_md5 = request.GET['token_md5']
-    user = User.objects.get(token_md5=token_md5)
-    yammer = Yammer(user.token)
+    db_user = User.objects.get(token_md5=token_md5)
+    yammer = Yammer(db_user.token)
     yammer_user = yammer.get_my_user()
-    user.add_foodroulette_fields(yammer_user)
+    db_user.add_foodroulette_fields(yammer_user)
 
     return self.create_response(request, yammer_user)
 
@@ -72,6 +76,19 @@ class UserResource(BaseResource):
     yammer.update_interests(yammer_user['id'], client_user['interests'])
 
     return self.create_response(request, client_user)
+
+
+  def get_user(self, request, user_id, **kwargs):
+    self.is_authenticated(request)
+
+    db_user = User.objects.get(yammer_id=user_id)
+    yammer = Yammer(db_user.token)
+    yammer_user = yammer.get_user(int(user_id))
+    db_user.add_foodroulette_fields(yammer_user)
+
+    return self.create_response(request, yammer_user)
+
+
 
 
 #************************************************************************

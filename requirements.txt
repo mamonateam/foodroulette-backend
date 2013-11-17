@@ -4,3 +4,6 @@ stevedore==0.7.2
 virtualenv==1.8.4
 virtualenv-clone==0.2.4
 wsgiref==0.1.2
+yampy==1.0
+django-tastypie==0.10.0
+mimeparse==0.1.3

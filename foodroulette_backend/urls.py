@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from foodroulette_api.views import *
 
 from django.contrib import admin
 admin.autodiscover()
@@ -15,4 +16,5 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(user_resource.urls)),
+    url(r'^user_register/', 'foodroulette_api.views.user_register'),
 )

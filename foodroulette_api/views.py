@@ -10,4 +10,4 @@ def user_register(request):
   user = create_user(token)
   token_md5 = user.token_md5
 
-  return redirect('#/login/%s' % token_md5)
+  return redirect('http://localhost:9000/#/login/%s' % token_md5)

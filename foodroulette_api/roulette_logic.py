@@ -6,3 +6,7 @@ def clean_roulette():
   for u in User.objects.all():
     u.is_eating = False
     u.save()
+
+
+def is_roulette_ready():
+  return not not Roulette.objects.count()

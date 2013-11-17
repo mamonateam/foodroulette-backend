@@ -111,7 +111,18 @@ class RouletteResource(BaseResource):
 
 
   def roulette_info(self, request, **kwargs):
-    return self.create_response(request, {'options': '[/, /exec, /clean]'})
+    self.is_authenticated(request)
+    is_ready = is_roulette_ready()
+
+    token_md5 = request.GET['token_md5']
+    db_user = User.objects.get(token_md5=token_md5)
+
+    user_ids = map(lambda x: x.yammer_id, db_user.roulette.user_set.exclude(id=db_user.id))
+
+    return self.create_response(request, {"is_ready": is_ready,
+                                          "user_ids": user_ids})
+
+
 
 
   def roulette_clean(self, request, **kwargs):

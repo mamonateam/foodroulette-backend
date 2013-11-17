@@ -1,6 +1,6 @@
 from foodroulette_api.models import *
 from foodroulette_backend.settings import *
-
+import random
 
 def clean_roulette():
   Roulette.objects.all().delete()

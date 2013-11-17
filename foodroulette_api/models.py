@@ -39,6 +39,24 @@ class User(models.Model):
   roulette = models.ForeignKey(Roulette, null=True,
                                on_delete=models.SET_NULL)
 
+  def serialize_food_preferences(self):
+    return map(lambda x: x.name, self.food_preferences.all())
+
+
+  def update_food_preferences(self, food_preferences):
+    self.food_preferences.clear()
+
+    for fp_name in food_preferences:
+      fp = FoodPreference.objects.get_or_create(name=fp_name)[0]
+      self.food_preferences.add(fp)
+
+
+  def add_foodroulette_fields(self, d):
+    d['food_roulette'] =  {
+                            'is_eating': self.is_eating,
+                            'food_preferences': self.serialize_food_preferences()
+                          }  
+
 
 
 def create_user(token):

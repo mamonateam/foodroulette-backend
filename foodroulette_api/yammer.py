@@ -12,10 +12,23 @@ class Yammer(object):
 
 
   def get_user(self, user_id):
-    return self.connection.users.find(user_id)
+    return self.__serializate_user(self.connection.users.find(user_id))
+
 
   def get_my_user(self):
-    return self.connection.users.find_current()
+    return self.__serializate_user(self.connection.users.find_current())
+
+
+  def update_interests(self, user_id, interests):
+    str_interests = ', '.join(interests)
+    self.connection.users.update(user_id, interests=str_interests)
+
+
+  def __serializate_user(self, user):
+    if user['interests']:
+      user['interests'] = map(lambda x: x.strip(), user['interests'].split(','))
+    return user
+
 
 
 def get_token(code):
